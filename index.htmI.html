@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>머신 케어 리포트</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#111827;--steel:#1e293b;--blue:#2563eb;--blue-light:#eff6ff;
+  --silver:#64748b;--line:#e2e8f0;--surface:#f8fafc;--white:#fff;
+  --green:#16a34a;--green-bg:#f0fdf4;--green-border:#bbf7d0;
+  --red:#dc2626;--red-bg:#fef2f2;--amber:#d97706;--amber-bg:#fffbeb;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Noto Sans KR',sans-serif;background:#e4e9f2;color:var(--ink);min-height:100vh;font-size:14px;}
+
+#view-form{display:block;}
+#view-report{display:none;}
+
+/* ── FORM HEADER ── */
+.form-header{background:var(--steel);padding:16px 18px 14px;position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:12px;}
+.brand-icon{width:32px;height:32px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.brand-name{font-family:'Noto Serif KR',serif;font-size:15px;font-weight:700;color:#fff;}
+.brand-sub{font-size:11px;color:#94a3b8;margin-top:2px;}
+
+.form-body{padding:14px 14px 100px;max-width:680px;margin:0 auto;}
+
+.form-footer{position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--white);border-top:1px solid var(--line);padding:12px 14px;}
+.btn-gen{width:100%;background:var(--steel);color:white;border:none;border-radius:10px;padding:14px;font-family:'Noto Sans KR',sans-serif;font-size:15px;font-weight:600;cursor:pointer;}
+.btn-gen:active{opacity:.8;}
+
+.form-section{background:var(--white);border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.sec-label{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--silver);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--line);}
+
+.field{margin-bottom:10px;}
+.field label{display:block;font-size:11px;font-weight:500;color:var(--silver);margin-bottom:4px;}
+input[type="text"],input[type="date"],input[type="email"],textarea,select{
+  width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:9px;
+  font-family:'Noto Sans KR',sans-serif;font-size:14px;color:var(--ink);background:var(--surface);
+  outline:none;transition:border-color .18s;-webkit-appearance:none;
+}
+input:focus,textarea:focus{border-color:var(--blue);background:var(--white);}
+textarea{resize:vertical;min-height:64px;line-height:1.6;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+
+/* machine tabs */
+.machine-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.m-tab{padding:7px 16px;border-radius:20px;font-size:13px;font-weight:500;border:1.5px solid var(--line);background:var(--surface);color:var(--silver);cursor:pointer;}
+.m-tab.active{border-color:var(--blue);background:var(--blue-light);color:var(--blue);}
+.btn-add-machine{padding:7px 16px;border-radius:20px;font-size:13px;font-weight:500;border:1.5px dashed #cbd5e1;background:transparent;color:var(--silver);cursor:pointer;margin-top:2px;}
+.btn-del-machine{padding:6px 12px;border-radius:7px;font-size:12px;border:1px solid #fecaca;background:var(--red-bg);color:var(--red);cursor:pointer;}
+
+/* param */
+.param-wrap{border:1.5px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:10px;}
+.param-head{display:grid;grid-template-columns:1fr 78px 78px;background:#f1f5f9;padding:7px 10px;gap:4px;}
+.param-head span{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--silver);text-align:center;}
+.param-head span:first-child{text-align:left;}
+.param-row{display:grid;grid-template-columns:1fr 78px 78px;gap:4px;padding:7px 8px;border-top:1px solid var(--line);align-items:center;}
+.param-name{font-size:12px;font-weight:500;}
+.param-unit{font-size:10px;color:#94a3b8;}
+.param-row input,.param-row textarea{padding:6px 5px;font-size:12px;text-align:center;border-radius:6px;border:1.5px solid var(--line);background:var(--surface);min-height:unset;}
+.param-row input:disabled,.param-row textarea:disabled{background:#f1f5f9;color:#94a3b8;}
+.nc-form-row{display:flex;align-items:center;padding:9px 10px;border-top:1px solid var(--line);background:var(--green-bg);}
+.nc-form-row label{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--green);cursor:pointer;font-weight:500;}
+.nc-form-row input[type="checkbox"]{width:18px;height:18px;padding:0;cursor:pointer;}
+
+/* toggle */
+.toggle-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.t-item{display:flex;align-items:center;gap:8px;padding:10px 11px;border:1.5px solid var(--line);border-radius:9px;background:var(--surface);cursor:pointer;user-select:none;}
+.t-check{width:16px;height:16px;border:1.5px solid #cbd5e1;border-radius:4px;background:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;color:transparent;}
+.t-item span{font-size:12px;line-height:1.3;}
+.t-item.on{border-color:var(--blue);background:var(--blue-light);}
+.t-item.on .t-check{background:var(--blue);border-color:var(--blue);color:white;}
+.t-item.on span{color:var(--blue);font-weight:500;}
+
+/* photo upload */
+.photo-section{margin-bottom:12px;}
+.photo-side-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:7px 12px;border-radius:8px 8px 0 0;text-align:center;}
+.photo-side-label.before{background:#fff7ed;color:var(--amber);border:1px solid #fde68a;border-bottom:none;}
+.photo-side-label.after{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);border-bottom:none;}
+.photo-upload-area{border-radius:0 0 10px 10px;background:var(--surface);padding:10px;}
+.photo-upload-area.before{border:1px solid #fde68a;}
+.photo-upload-area.after{border:1px solid var(--green-border);}
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;}
+.photo-thumb{position:relative;border-radius:8px;overflow:hidden;aspect-ratio:1;background:#f1f5f9;}
+.photo-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.thumb-del{position:absolute;top:3px;right:3px;width:22px;height:22px;background:rgba(0,0,0,.6);color:white;border:none;border-radius:50%;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.btn-add-photo{width:100%;padding:10px;border:1.5px dashed #cbd5e1;border-radius:8px;background:transparent;color:var(--silver);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
+.photo-count{font-size:11px;color:#94a3b8;text-align:center;margin-top:5px;}
+
+/* result tabs */
+.result-tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.r-tab{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 6px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);cursor:pointer;user-select:none;text-align:center;}
+.r-tab input{display:none;}
+.r-tab .ri{font-size:22px;}
+.r-tab .rl{font-size:12px;font-weight:500;color:var(--silver);}
+.r-tab.sel-good{border-color:var(--green);background:var(--green-bg);}
+.r-tab.sel-good .rl{color:var(--green);}
+.r-tab.sel-warn{border-color:var(--amber);background:var(--amber-bg);}
+.r-tab.sel-warn .rl{color:var(--amber);}
+.r-tab.sel-bad{border-color:var(--red);background:var(--red-bg);}
+.r-tab.sel-bad .rl{color:var(--red);}
+
+/* ── REPORT ── */
+.report-header{background:var(--steel);padding:14px 16px;position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:10px;}
+.btn-back{background:none;border:1px solid rgba(255,255,255,.25);color:white;border-radius:8px;padding:8px 14px;font-size:13px;cursor:pointer;white-space:nowrap;}
+.report-header-title{font-family:'Noto Serif KR',serif;font-size:14px;color:white;flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.btn-share-r{background:var(--blue);border:none;color:white;border-radius:8px;padding:8px 14px;font-size:13px;cursor:pointer;white-space:nowrap;}
+
+.report-action-bar{background:white;border-bottom:1px solid var(--line);padding:10px 14px;display:flex;gap:8px;}
+.btn-copy-r,.btn-mail-r{flex:1;padding:11px;border-radius:9px;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border:none;display:flex;align-items:center;justify-content:center;gap:6px;}
+.btn-copy-r{background:var(--surface);color:var(--steel);border:1.5px solid var(--line);}
+.btn-pdf-r{background:#16a34a;color:white;border:none;}
+.btn-mail-r{background:var(--blue);color:white;}
+
+.report-body{padding:12px 12px 40px;max-width:680px;margin:0 auto;}
+.r-paper{background:white;border-radius:14px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.1);}
+.r-hero{background:var(--steel);padding:26px 20px 20px;position:relative;overflow:hidden;}
+.r-hero::after{content:'';position:absolute;right:-20px;top:-30px;width:150px;height:150px;background:radial-gradient(circle,rgba(59,130,246,.22) 0%,transparent 65%);border-radius:50%;pointer-events:none;}
+.r-eyebrow{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#60a5fa;margin-bottom:6px;}
+.r-title{font-family:'Noto Serif KR',serif;font-size:20px;font-weight:700;color:white;line-height:1.3;margin-bottom:14px;}
+.r-meta{display:flex;gap:16px;flex-wrap:wrap;}
+.r-mi{display:flex;flex-direction:column;gap:1px;}
+.r-mi .mk{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#64748b;}
+.r-mi .mv{font-size:12px;color:#cbd5e1;}
+.r-body-inner{padding:18px 16px;}
+.res-banner{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;margin-bottom:20px;font-size:13px;font-weight:500;}
+.res-banner.good{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);}
+.res-banner.warn{background:var(--amber-bg);color:var(--amber);border:1px solid #fde68a;}
+.res-banner.bad{background:var(--red-bg);color:var(--red);border:1px solid #fecaca;}
+.res-banner .bi{font-size:18px;flex-shrink:0;}
+.rmt-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.rmt{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;border:1.5px solid var(--line);background:var(--surface);color:var(--silver);cursor:pointer;}
+.rmt.active{border-color:var(--blue);background:var(--blue-light);color:var(--blue);}
+.mrs{display:none;}
+.mrs.active{display:block;}
+.r-sec{margin-bottom:20px;}
+.r-sec-t{font-size:10px;font-weight:600;letter-spacing:1.8px;text-transform:uppercase;color:var(--silver);padding-bottom:7px;border-bottom:1.5px solid var(--line);margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+.r-sec-t .dot{width:6px;height:6px;background:var(--blue);border-radius:50%;flex-shrink:0;}
+
+/* photo gallery */
+.photo-group{margin-bottom:12px;}
+.photo-group-title{font-size:11px;font-weight:600;padding:6px 10px;border-radius:8px 8px 0 0;text-align:center;}
+.photo-group-title.before{background:#fff7ed;color:var(--amber);border:1px solid #fde68a;border-bottom:none;}
+.photo-group-title.after{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);border-bottom:none;}
+.photo-gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;padding:8px;border-radius:0 0 10px 10px;}
+.photo-gallery.before{border:1px solid #fde68a;}
+.photo-gallery.after{border:1px solid var(--green-border);}
+.gallery-img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:7px;cursor:pointer;display:block;}
+.gallery-empty{padding:18px;text-align:center;color:#94a3b8;font-size:12px;grid-column:1/-1;}
+
+/* lightbox */
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9000;align-items:center;justify-content:center;}
+.lightbox.open{display:flex;}
+.lightbox img{max-width:95vw;max-height:80vh;object-fit:contain;border-radius:8px;}
+.lb-close{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.15);color:white;border:none;border-radius:50%;width:38px;height:38px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.lb-prev,.lb-next{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);color:white;border:none;border-radius:50%;width:44px;height:44px;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.lb-prev{left:12px;}
+.lb-next{right:12px;}
+.lb-count{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.6);font-size:12px;}
+
+/* tables */
+.ext-table,.chk-table{width:100%;border-collapse:collapse;font-size:13px;}
+.ext-table thead tr,.chk-table thead tr{background:#f1f5f9;}
+.ext-table thead th,.chk-table thead th{padding:8px 10px;text-align:center;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--silver);font-weight:600;border-bottom:1px solid var(--line);}
+.ext-table thead th:first-child,.chk-table thead th:first-child{text-align:left;}
+.chk-table thead th:last-child{text-align:center;width:70px;}
+.ext-table tbody td,.chk-table tbody td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:center;vertical-align:middle;}
+.ext-table tbody td:first-child,.chk-table tbody td:first-child{text-align:left;font-weight:500;}
+.chk-table tbody td:last-child{text-align:center;}
+.ext-table tbody tr:last-child td,.chk-table tbody tr:last-child td{border-bottom:none;}
+.nc-row td{background:var(--green-bg);color:var(--green);}
+.val-changed{color:var(--blue);font-weight:600;}
+.val-ok{color:var(--green);font-weight:500;}
+.arrow-c{color:#cbd5e1;font-size:12px;}
+.ok-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:var(--green-bg);color:var(--green);border-radius:20px;font-size:11px;font-weight:600;}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;}
+.pill.ok{background:var(--green-bg);color:var(--green);}
+.pill.none{background:#f1f5f9;color:var(--silver);}
+.note-box{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:13px 14px;font-size:13px;line-height:1.7;white-space:pre-wrap;}
+.issue-box{background:var(--red-bg);border:1px solid #fecaca;border-radius:10px;padding:13px 14px;font-size:13px;color:#991b1b;line-height:1.7;white-space:pre-wrap;}
+.sign-wrap{display:flex;justify-content:flex-end;margin-top:6px;}
+.sign-box{text-align:center;padding:12px 24px;border:1px solid var(--line);border-radius:10px;background:var(--surface);min-width:140px;}
+.sign-box .sl{font-size:10px;color:var(--silver);letter-spacing:1px;margin-bottom:18px;}
+.sign-box .sn{font-size:13px;font-weight:600;border-top:1px solid var(--line);padding-top:7px;}
+.r-footer{background:var(--surface);border-top:1px solid var(--line);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;}
+.r-footer .rfb{font-size:11px;color:var(--silver);}
+.r-footer .rfg{font-size:10px;color:#94a3b8;}
+
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--steel);color:#e2e8f0;padding:10px 22px;border-radius:40px;font-size:13px;font-weight:500;opacity:0;transition:all .25s;pointer-events:none;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.22);white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+@media(min-width:680px){
+  .photo-gallery,.photo-grid{grid-template-columns:repeat(4,1fr);}
+}
+
+/* ══ PDF 인쇄 전용 레이아웃 ══ */
+@media print {
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; box-sizing: border-box; }
+
+  body { background: white !important; margin: 0; padding: 0; font-size: 11pt; }
+
+  /* 화면 UI 전부 숨김 */
+  #view-form,
+  .report-header,
+  .report-action-bar,
+  .lightbox,
+  .toast,
+  .rmt-bar { display: none !important; }
+
+  #view-report { display: block !important; }
+
+  .report-body { padding: 0 !important; max-width: 100% !important; margin: 0 !important; }
+
+  .r-paper { border-radius: 0 !important; box-shadow: none !important; width: 100%; }
+
+  /* ── 헤더 ── */
+  .r-hero {
+    background: #1e293b !important;
+    color: white !important;
+    padding: 20px 24px 16px !important;
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  .r-eyebrow { color: #60a5fa !important; font-size: 8pt; letter-spacing: 2px; }
+  .r-title { color: white !important; font-size: 16pt; margin-bottom: 10px; }
+  .r-mi .mk { color: #64748b !important; font-size: 7pt; }
+  .r-mi .mv { color: #cbd5e1 !important; font-size: 10pt; }
+
+  /* ── 본문 ── */
+  .r-body-inner { padding: 16px 24px !important; }
+
+  /* ── 결과 배너 ── */
+  .res-banner { padding: 8px 12px !important; margin-bottom: 14px !important; font-size: 10pt; border-radius: 6px; }
+  .res-banner.good { background: #f0fdf4 !important; color: #16a34a !important; border: 1pt solid #bbf7d0 !important; }
+  .res-banner.warn { background: #fffbeb !important; color: #d97706 !important; border: 1pt solid #fde68a !important; }
+  .res-banner.bad  { background: #fef2f2 !important; color: #dc2626 !important; border: 1pt solid #fecaca !important; }
+
+  /* ── 섹션 제목 ── */
+  .r-sec { margin-bottom: 14px !important; page-break-inside: avoid; break-inside: avoid; }
+  .r-sec-t { font-size: 8pt !important; padding-bottom: 5px !important; margin-bottom: 8px !important; border-bottom: 1.5pt solid #e2e8f0 !important; }
+
+  /* ── 표 ── */
+  .ext-table, .chk-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 9.5pt !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    table-layout: fixed;
+  }
+
+  .ext-table thead tr, .chk-table thead tr { background: #f1f5f9 !important; }
+
+  .ext-table thead th, .chk-table thead th {
+    padding: 6px 8px !important;
+    font-size: 8pt !important;
+    border-bottom: 1pt solid #e2e8f0 !important;
+    white-space: nowrap;
+  }
+
+  .ext-table tbody td, .chk-table tbody td {
+    padding: 7px 8px !important;
+    border-bottom: 1pt solid #e2e8f0 !important;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .pill { padding: 2px 6px !important; font-size: 8pt !important; border-radius: 10px; white-space: nowrap; }
+  .pill.ok  { background: #f0fdf4 !important; color: #16a34a !important; }
+  .pill.none { background: #f1f5f9 !important; color: #64748b !important; }
+
+  .ok-badge { background: #f0fdf4 !important; color: #16a34a !important; font-size: 9pt !important; padding: 4px 8px !important; }
+  .val-changed { color: #2563eb !important; font-weight: 600; }
+  .val-ok { color: #16a34a !important; }
+
+  /* ── 이상증상/메모 박스 ── */
+  .note-box  { background: #f8fafc !important; border: 1pt solid #e2e8f0 !important; padding: 8px 10px !important; font-size: 9.5pt !important; border-radius: 6px; }
+  .issue-box { background: #fef2f2 !important; border: 1pt solid #fecaca !important; padding: 8px 10px !important; font-size: 9.5pt !important; color: #991b1b !important; border-radius: 6px; }
+
+  /* ── 서명 ── */
+  .sign-wrap { page-break-inside: avoid; break-inside: avoid; margin-top: 10px !important; }
+  .sign-box { padding: 10px 20px !important; border: 1pt solid #e2e8f0 !important; border-radius: 6px; background: #f8fafc !important; }
+
+  /* ── 푸터 ── */
+  .r-footer { padding: 8px 24px !important; background: #f8fafc !important; border-top: 1pt solid #e2e8f0 !important; }
+  .r-footer .rfb, .r-footer .rfg { font-size: 8pt !important; color: #64748b !important; }
+
+  /* ══ 사진 섹션 — 반드시 새 페이지에서 시작 ══ */
+  .photo-print-section {
+    page-break-before: always !important;
+    break-before: always !important;
+    padding: 20px 24px !important;
+  }
+
+  .photo-print-title {
+    font-size: 13pt !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    margin-bottom: 12px !important;
+    padding-bottom: 6px !important;
+    border-bottom: 2pt solid #e2e8f0 !important;
+  }
+
+  .photo-print-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .photo-print-item {
+    width: 100% !important;
+    aspect-ratio: 4/3 !important;
+    object-fit: cover !important;
+    border-radius: 6px !important;
+    display: block !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* 화면 사진 갤러리는 인쇄에서 숨김 */
+  .r-sec:has(.photo-group) { display: none !important; }
+
+  /* 인쇄 전용 사진 섹션 표시 */
+  .print-photo-pages { display: block !important; }
+}
+
+/* 화면에서는 인쇄 전용 사진 섹션 숨김 */
+.print-photo-pages { display: none; }
+</style>
+</head>
+<body>
+
+<!-- ══ FORM VIEW ══ -->
+<div id="view-form">
+  <div class="form-header">
+    <div class="brand-icon">⚙</div>
+    <div>
+      <div class="brand-name">머신 케어 리포트</div>
+      <div class="brand-sub">고객사 커피 머신 점검 보고서</div>
+    </div>
+  </div>
+
+  <div class="form-body">
+    <!-- 기본 정보 -->
+    <div class="form-section">
+      <div class="sec-label">기본 정보</div>
+
+      <!-- 고객사 자동완성 -->
+      <div class="field">
+        <label>고객사명 <span id="api-status" style="font-size:10px;color:#94a3b8;font-weight:400;margin-left:4px"></span></label>
+        <div style="position:relative">
+          <input type="text" id="client" placeholder="고객사명 검색..." autocomplete="off">
+          <div id="client-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border:1.5px solid var(--blue);border-top:none;border-radius:0 0 9px 9px;z-index:200;max-height:220px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.12)"></div>
+        </div>
+      </div>
+
+      <!-- 자동 입력된 담당자 정보 -->
+      <div id="client-info-row" style="display:none;background:var(--blue-light);border:1px solid #bfdbfe;border-radius:9px;padding:10px 13px;margin-bottom:10px;font-size:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span style="font-weight:600;color:var(--blue)">✓ 고객사 정보 자동 입력됨</span>
+          <button id="btn-clear-client" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:12px;">✕ 초기화</button>
+        </div>
+        <div style="color:var(--steel);line-height:1.7">
+          <span>담당자: </span><span id="info-contact" style="font-weight:500"></span>
+          &nbsp;·&nbsp;
+          <span>연락처: </span><span id="info-phone" style="font-weight:500"></span><br>
+          <span>이메일: </span><span id="info-email" style="font-weight:500;color:var(--blue)"></span>
+        </div>
+      </div>
+
+      <!-- 수동 이메일 입력 (자동입력 안됐을 때) -->
+      <div id="email-manual-row" class="field">
+        <label>수신자 이메일 <span style="color:#94a3b8;font-weight:400">(고객사 선택 시 자동 입력)</span></label>
+        <input type="email" id="email" placeholder="직접 입력하거나 위에서 고객사 선택">
+      </div>
+
+      <div class="field-row">
+        <div class="field"><label>방문 일자</label><input type="date" id="visit-date"></div>
+        <div class="field"><label>담당 엔지니어</label><input type="text" id="engineer" placeholder="성함"></div>
+      </div>
+    </div>
+
+    <!-- 머신 -->
+    <div class="form-section">
+      <div class="sec-label">머신 선택</div>
+      <div class="machine-tabs" id="machine-tabs"></div>
+      <button class="btn-add-machine" id="btn-add-machine">＋ 머신 추가</button>
+      <div id="machine-forms" style="margin-top:14px"></div>
+    </div>
+
+    <!-- 종합 결과 -->
+    <div class="form-section">
+      <div class="sec-label">종합 점검 결과</div>
+      <div class="result-tabs" id="result-tabs">
+        <label class="r-tab sel-good" data-val="good"><input type="radio" name="result" value="good" checked><span class="ri">✅</span><span class="rl">정상</span></label>
+        <label class="r-tab" data-val="warn"><input type="radio" name="result" value="warn"><span class="ri">⚠️</span><span class="rl">주의 필요</span></label>
+        <label class="r-tab" data-val="bad"><input type="radio" name="result" value="bad"><span class="ri">🔴</span><span class="rl">즉시 조치</span></label>
+      </div>
+    </div>
+
+    <!-- 이상 증상 -->
+    <div class="form-section">
+      <div class="sec-label">이상 증상 / 조치 내용</div>
+      <textarea id="issue" placeholder="이상 증상 및 조치 사항 (없으면 비워두세요)"></textarea>
+    </div>
+
+    <!-- 추가 메모 -->
+    <div class="form-section">
+      <div class="sec-label">추가 메모</div>
+      <textarea id="memo" placeholder="다음 방문 일정, 소모품 현황, 기타 안내 등..."></textarea>
+    </div>
+  </div>
+
+  <div class="form-footer">
+    <button class="btn-gen" id="btn-gen">⚙ 리포트 생성하기</button>
+  </div>
+</div>
+
+<!-- ══ REPORT VIEW ══ -->
+<div id="view-report">
+  <div class="report-header">
+    <button class="btn-back" id="btn-back">← 수정</button>
+    <div class="report-header-title" id="rh-title">리포트</div>
+    <button class="btn-share-r" id="btn-share-r">🔗 공유</button>
+  </div>
+  <div class="report-action-bar">
+    <button class="btn-copy-r" id="btn-copy-r">📋 내용 복사</button>
+    <button class="btn-pdf-r"  id="btn-pdf-r">📄 PDF 저장</button>
+    <button class="btn-mail-r"  id="btn-mail-r">✉️ 메일 발송</button>
+  </div>
+  <div class="report-body">
+    <div class="r-paper" id="r-paper"></div>
+  </div>
+</div>
+
+<!-- lightbox -->
+<div class="lightbox" id="lightbox">
+  <button class="lb-close" id="lb-close">✕</button>
+  <button class="lb-prev"  id="lb-prev">‹</button>
+  <img id="lb-img" src="" alt="">
+  <button class="lb-next"  id="lb-next">›</button>
+  <div class="lb-count" id="lb-count"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══ DATA ══ */
+const CHECKS=[
+  {id:'mc1',label:'기기 내부 세척'},{id:'mc2',label:'스팀 살균'},
+  {id:'mc3',label:'버튼 상태'},{id:'mc4',label:'펌프 상태'},
+  {id:'mc5',label:'그라인더 상태'},{id:'mc6',label:'물통 상태'},
+  {id:'mc7',label:'넉박스 상태'},{id:'mc8',label:'드레인박스 상태'},
+];
+const PARAMS=[
+  {key:'vol',  label:'추출량',      unit:'ml'},
+  {key:'time', label:'추출 시간',   unit:'초'},
+  {key:'dose', label:'투입 원두량', unit:'g'},
+  {key:'tds',  label:'커피 농도',   unit:'TDS%'},
+  {key:'sense',label:'관능 평가',   unit:'맛·향', ta:true},
+];
+
+let machines=[], activeMid=null, mc=0, lastData=null;
+let lbImages=[], lbIdx=0;
+
+/* ══ INIT ══ */
+document.getElementById('visit-date').value=new Date().toISOString().split('T')[0];
+
+/* ══ SHEETS API 설정 ══
+   아래 URL을 Apps Script 배포 후 받은 웹앱 URL로 교체하세요 */
+var SHEETS_API_URL = 'https://script.google.com/a/macros/ablecoffeegroup.com/s/AKfycbzf8tBISLM0K4FRoOXXJT5AMSdZV2YpSFSyUBESPoOEkdx7a5Y6upiig7-VO2AnFGFZdA/exec';
+
+/* ══ 고객사 자동완성 ══ */
+var searchTimer = null;
+var selectedClient = null;
+
+function initClientSearch(){
+  var input = document.getElementById('client');
+  var dropdown = document.getElementById('client-dropdown');
+
+  if(!input) return;
+
+  input.addEventListener('input', function(){
+    var q = this.value.trim();
+    selectedClient = null;
+    document.getElementById('client-info-row').style.display='none';
+    document.getElementById('email-manual-row').style.display='block';
+
+    clearTimeout(searchTimer);
+    if(q.length < 1){ dropdown.style.display='none'; return; }
+
+    searchTimer = setTimeout(function(){ fetchClients(q); }, 300);
+  });
+
+  input.addEventListener('blur', function(){
+    setTimeout(function(){ dropdown.style.display='none'; }, 200);
+  });
+
+  document.getElementById('btn-clear-client').addEventListener('click', function(){
+    document.getElementById('client').value='';
+    document.getElementById('email').value='';
+    document.getElementById('client-info-row').style.display='none';
+    document.getElementById('email-manual-row').style.display='block';
+    selectedClient=null;
+  });
+}
+
+function fetchClients(q){
+  var statusEl = document.getElementById('api-status');
+  var dropdown = document.getElementById('client-dropdown');
+
+  statusEl.textContent='검색 중...';
+
+  // 기존 JSONP 스크립트 태그 제거
+  var old = document.getElementById('jsonp-script');
+  if(old) old.remove();
+
+  // 전역 콜백 함수 등록
+  window.__sheetsCb = function(data){
+    statusEl.textContent='';
+    var old2 = document.getElementById('jsonp-script');
+    if(old2) old2.remove();
+
+    if(!data.ok || !data.results || !data.results.length){
+      dropdown.innerHTML='<div style="padding:12px 14px;font-size:12px;color:#94a3b8">검색 결과 없음</div>';
+      dropdown.style.display='block';
+      return;
+    }
+    renderDropdown(data.results);
+  };
+
+  // JSONP 방식으로 호출 (CORS 우회)
+  var script = document.createElement('script');
+  script.id = 'jsonp-script';
+  script.src = SHEETS_API_URL + '?q=' + encodeURIComponent(q) + '&callback=__sheetsCb';
+  script.onerror = function(){
+    statusEl.textContent='⚠ 연결 오류';
+    dropdown.style.display='none';
+  };
+  document.head.appendChild(script);
+
+  // 3초 타임아웃
+  setTimeout(function(){
+    if(statusEl.textContent === '검색 중...'){
+      statusEl.textContent='⚠ 연결 오류';
+    }
+  }, 3000);
+}
+
+function renderDropdown(results){
+  var dropdown = document.getElementById('client-dropdown');
+  dropdown.innerHTML='';
+  results.forEach(function(item){
+    var div=document.createElement('div');
+    div.style.cssText='padding:11px 14px;cursor:pointer;border-bottom:1px solid var(--line);';
+    div.innerHTML='<div style="font-size:13px;font-weight:500;color:var(--ink)">'+item.name+'</div>'
+      +'<div style="font-size:11px;color:var(--silver);margin-top:2px">'+item.contact+' · '+item.email+'</div>';
+    div.addEventListener('mousedown', function(){
+      selectClient(item);
+    });
+    div.addEventListener('touchstart', function(){ selectClient(item); }, {passive:true});
+    dropdown.appendChild(div);
+  });
+  dropdown.style.display='block';
+}
+
+function selectClient(item){
+  document.getElementById('client').value = item.name;
+  document.getElementById('email').value  = item.email;
+  document.getElementById('client-dropdown').style.display='none';
+
+  document.getElementById('info-contact').textContent = item.contact || '—';
+  document.getElementById('info-phone').textContent   = item.phone   || '—';
+  document.getElementById('info-email').textContent   = item.email   || '—';
+  document.getElementById('client-info-row').style.display='block';
+  document.getElementById('email-manual-row').style.display='none';
+
+  selectedClient = item;
+}
+
+/* static buttons */
+initClientSearch();
+document.getElementById('btn-add-machine').addEventListener('click', addMachine);
+document.getElementById('btn-gen').addEventListener('click', generate);
+document.getElementById('btn-back').addEventListener('click', goBack);
+document.getElementById('btn-share-r').addEventListener('click', shareReport);
+document.getElementById('btn-copy-r').addEventListener('click', copyText);
+document.getElementById('btn-pdf-r').addEventListener('click', savePDF);
+document.getElementById('btn-mail-r').addEventListener('click', openMail);
+document.getElementById('lb-close').addEventListener('click', closeLightbox);
+document.getElementById('lb-prev').addEventListener('click', function(e){e.stopPropagation();lbNav(-1);});
+document.getElementById('lb-next').addEventListener('click', function(e){e.stopPropagation();lbNav(1);});
+document.getElementById('lightbox').addEventListener('click', closeLightbox);
+
+/* result tabs */
+document.querySelectorAll('.r-tab').forEach(function(tab){
+  tab.addEventListener('click', function(){
+    document.querySelectorAll('.r-tab').forEach(function(t){t.classList.remove('sel-good','sel-warn','sel-bad');});
+    tab.classList.add('sel-'+tab.dataset.val);
+  });
+});
+
+/* ══ MACHINE ══ */
+function addMachine(){
+  mc++;
+  const id='M'+mc;
+  machines.push({id:id,name:'머신 '+mc+'호',photos:{before:[],after:[]},params:{},checks:{},noChange:false});
+  renderTabs();
+  switchMachine(id);
+}
+
+function renderTabs(){
+  const bar=document.getElementById('machine-tabs');
+  bar.innerHTML='';
+  machines.forEach(function(m){
+    const b=document.createElement('button');
+    b.className='m-tab'+(m.id===activeMid?' active':'');
+    b.textContent=m.name;
+    b.setAttribute('data-mid', m.id);
+    b.addEventListener('click', function(){ switchMachine(m.id); });
+    bar.appendChild(b);
+  });
+}
+
+function switchMachine(id){
+  activeMid=id;
+  renderTabs();
+  renderForm(id);
+}
+
+function renderForm(id){
+  const m=machines.find(function(x){return x.id===id;});
+  if(!m) return;
+  const container=document.getElementById('machine-forms');
+  container.innerHTML='';
+
+  /* ── 이름 행 ── */
+  const nameRow=document.createElement('div');
+  nameRow.className='field';
+  nameRow.style.cssText='display:flex;gap:6px;align-items:flex-end;margin-bottom:12px';
+
+  const nameWrap=document.createElement('div');
+  nameWrap.style.flex='1';
+  const nameLabel=document.createElement('label');
+  nameLabel.textContent='머신 이름';
+  const nameInput=document.createElement('input');
+  nameInput.type='text';
+  nameInput.value=m.name;
+  nameInput.placeholder='예: 에스프레소 머신 1호';
+  nameInput.addEventListener('input', function(){ m.name=this.value; renderTabs(); });
+  nameWrap.appendChild(nameLabel);
+  nameWrap.appendChild(nameInput);
+  nameRow.appendChild(nameWrap);
+
+  if(machines.length>1){
+    const delBtn=document.createElement('button');
+    delBtn.className='btn-del-machine';
+    delBtn.textContent='✕ 삭제';
+    delBtn.addEventListener('click', function(){ delMachine(id); });
+    nameRow.appendChild(delBtn);
+  }
+  container.appendChild(nameRow);
+
+  /* ── 사진 ── */
+  container.appendChild(buildPhotoSection(id,'before'));
+  container.appendChild(buildPhotoSection(id,'after'));
+
+  /* ── 파라미터 ── */
+  const paramLabel=document.createElement('div');
+  paramLabel.className='sec-label';
+  paramLabel.style.marginBottom='8px';
+  paramLabel.textContent='아메리카노 추출 상태';
+  container.appendChild(paramLabel);
+
+  const paramWrap=document.createElement('div');
+  paramWrap.className='param-wrap';
+
+  const head=document.createElement('div');
+  head.className='param-head';
+  head.innerHTML='<span>항목</span><span>조정 전</span><span>조정 후</span>';
+  paramWrap.appendChild(head);
+
+  PARAMS.forEach(function(p){
+    const row=document.createElement('div');
+    row.className='param-row';
+    if(p.ta) row.style.gridTemplateColumns='1fr 1fr 1fr';
+
+    const nameDiv=document.createElement('div');
+    nameDiv.innerHTML='<div class="param-name">'+p.label+'</div><span class="param-unit">'+p.unit+'</span>';
+    row.appendChild(nameDiv);
+
+    ['b','a'].forEach(function(side){
+      const el=p.ta ? document.createElement('textarea') : document.createElement('input');
+      if(!p.ta) el.type='text';
+      el.style.cssText='padding:6px 5px;font-size:12px;text-align:center;border-radius:6px;border:1.5px solid var(--line);background:var(--surface);';
+      if(p.ta){ el.style.minHeight='40px'; el.style.resize='vertical'; }
+      el.value=m.params[p.key+'_'+side]||'';
+      el.placeholder='—';
+      el.disabled=m.noChange;
+      el.setAttribute('data-pid', p.key+'_'+side+'_'+id);
+      el.addEventListener('input', (function(k){ return function(){ m.params[k]=this.value; }; })(p.key+'_'+side));
+      row.appendChild(el);
+    });
+    paramWrap.appendChild(row);
+  });
+
+  /* no-change row */
+  const ncRow=document.createElement('div');
+  ncRow.className='nc-form-row';
+  const ncLabel=document.createElement('label');
+  const ncCb=document.createElement('input');
+  ncCb.type='checkbox';
+  ncCb.checked=m.noChange;
+  ncCb.id='nc_'+id;
+  ncCb.addEventListener('change', function(){
+    m.noChange=this.checked;
+    paramWrap.querySelectorAll('input[type="text"],textarea').forEach(function(el){ el.disabled=m.noChange; });
+  });
+  ncLabel.appendChild(ncCb);
+  ncLabel.appendChild(document.createTextNode(' ✅ 조정 불필요 — 현재 상태 양호'));
+  ncRow.appendChild(ncLabel);
+  paramWrap.appendChild(ncRow);
+  container.appendChild(paramWrap);
+
+  /* ── 머신 관리 체크 ── */
+  const chkLabel=document.createElement('div');
+  chkLabel.className='sec-label';
+  chkLabel.style.cssText='margin-top:14px;margin-bottom:8px';
+  chkLabel.textContent='커피 머신 관리';
+  container.appendChild(chkLabel);
+
+  const grid=document.createElement('div');
+  grid.className='toggle-grid';
+  CHECKS.forEach(function(ck){
+    const item=document.createElement('label');
+    item.className='t-item'+(m.checks[ck.id]?' on':'');
+    item.id='tw_'+ck.id+'_'+id;
+
+    const cb=document.createElement('input');
+    cb.type='checkbox';
+    cb.style.display='none';
+    cb.checked=!!m.checks[ck.id];
+
+    const box=document.createElement('div');
+    box.className='t-check';
+    if(m.checks[ck.id]) box.textContent='✓';
+
+    const txt=document.createElement('span');
+    txt.textContent=ck.label;
+
+    item.appendChild(cb);
+    item.appendChild(box);
+    item.appendChild(txt);
+
+    item.addEventListener('click', function(){
+      cb.checked=!cb.checked;
+      m.checks[ck.id]=cb.checked;
+      if(cb.checked){ item.classList.add('on'); box.textContent='✓'; }
+      else           { item.classList.remove('on'); box.textContent=''; }
+    });
+    grid.appendChild(item);
+  });
+  container.appendChild(grid);
+
+  /* restore photo thumbs */
+  ['before','after'].forEach(function(side){
+    m.photos[side].forEach(function(src,i){ appendThumb(id,side,src,i); });
+  });
+}
+
+/* ── 사진 섹션 DOM 빌드 ── */
+function buildPhotoSection(id, side){
+  const m=machines.find(function(x){return x.id===id;});
+  const wrap=document.createElement('div');
+  wrap.className='photo-section';
+
+  const lbl=document.createElement('div');
+  lbl.className='photo-side-label '+side;
+  lbl.textContent=side==='before'?'케어 전 (BEFORE)':'케어 후 (AFTER)';
+  wrap.appendChild(lbl);
+
+  const area=document.createElement('div');
+  area.className='photo-upload-area '+side;
+
+  const grid=document.createElement('div');
+  grid.className='photo-grid';
+  grid.id='pgrid_'+side+'_'+id;
+  area.appendChild(grid);
+
+  const addBtn=document.createElement('button');
+  addBtn.className='btn-add-photo';
+  addBtn.innerHTML='📷 사진 추가';
+  area.appendChild(addBtn);
+
+  const count=document.createElement('div');
+  count.className='photo-count';
+  count.id='pcnt_'+side+'_'+id;
+  count.textContent=(m?m.photos[side].length:0)+'장';
+  area.appendChild(count);
+
+  const fileInput=document.createElement('input');
+  fileInput.type='file';
+  fileInput.accept='image/*';
+  fileInput.multiple=true;
+  fileInput.style.display='none';
+  fileInput.id='pfile_'+side+'_'+id;
+  fileInput.addEventListener('change', function(){ handlePhotos(id, side, this); });
+  area.appendChild(fileInput);
+
+  addBtn.addEventListener('click', function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    fileInput.click();
+  });
+
+  wrap.appendChild(area);
+  return wrap;
+}
+
+function handlePhotos(id, side, input){
+  const m=machines.find(function(x){return x.id===id;});
+  if(!m) return;
+  Array.from(input.files).forEach(function(file){
+    const reader=new FileReader();
+    reader.onload=function(e){
+      const idx=m.photos[side].length;
+      m.photos[side].push(e.target.result);
+      appendThumb(id, side, e.target.result, idx);
+      updateCount(id, side);
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value='';
+}
+
+function appendThumb(id, side, src, idx){
+  const grid=document.getElementById('pgrid_'+side+'_'+id);
+  if(!grid) return;
+  const div=document.createElement('div');
+  div.className='photo-thumb';
+
+  const img=document.createElement('img');
+  img.src=src;
+  div.appendChild(img);
+
+  const del=document.createElement('button');
+  del.className='thumb-del';
+  del.textContent='✕';
+  del.addEventListener('click', (function(i){ return function(e){ e.stopPropagation(); delPhoto(id,side,i); }; })(idx));
+  div.appendChild(del);
+
+  grid.appendChild(div);
+  updateCount(id, side);
+}
+
+function delPhoto(id, side, idx){
+  const m=machines.find(function(x){return x.id===id;});
+  if(!m) return;
+  m.photos[side].splice(idx,1);
+  const grid=document.getElementById('pgrid_'+side+'_'+id);
+  grid.innerHTML='';
+  m.photos[side].forEach(function(src,i){ appendThumb(id,side,src,i); });
+  updateCount(id, side);
+}
+
+function updateCount(id, side){
+  const m=machines.find(function(x){return x.id===id;});
+  const el=document.getElementById('pcnt_'+side+'_'+id);
+  if(el&&m) el.textContent=m.photos[side].length+'장';
+}
+
+function delMachine(id){
+  machines=machines.filter(function(x){return x.id!==id;});
+  if(activeMid===id) activeMid=machines[0]?machines[0].id:null;
+  renderTabs();
+  if(activeMid) renderForm(activeMid);
+  else document.getElementById('machine-forms').innerHTML='';
+}
+
+/* ══ GENERATE ══ */
+function fmtDate(str){
+  if(!str) return '—';
+  const d=new Date(str);
+  return d.getFullYear()+'년 '+(d.getMonth()+1)+'월 '+d.getDate()+'일';
+}
+function diffTag(b,a){
+  if(!b||!a) return '';
+  const bn=parseFloat(b),an=parseFloat(a);
+  if(isNaN(bn)||isNaN(an)||bn===an) return '';
+  const d=an-bn, pct=bn!==0?(Math.abs(d/bn)*100).toFixed(1):null;
+  const sign=d>0?'+':'', col=d>0?'color:var(--blue)':'color:var(--red)';
+  return ' <span style="font-size:11px;font-weight:600;'+col+'">'+sign+(Number.isInteger(d)?d:d.toFixed(2))+(pct?' ('+pct+'%)':'')+'</span>';
+}
+
+function generate(){
+  if(machines.length===0){showToast('⚠ 머신을 1대 이상 추가해주세요');return;}
+
+  const client  =document.getElementById('client').value.trim()||'(고객사명 미입력)';
+  const dateStr =fmtDate(document.getElementById('visit-date').value);
+  const engineer=document.getElementById('engineer').value.trim()||'—';
+  const email   =document.getElementById('email').value.trim();
+  const issue   =document.getElementById('issue').value.trim();
+  const memo    =document.getElementById('memo').value.trim();
+  const result  =document.querySelector('input[name="result"]:checked').value;
+
+  lastData={client:client,dateStr:dateStr,engineer:engineer,email:email,issue:issue,memo:memo,result:result,
+    machines:JSON.parse(JSON.stringify(machines))};
+
+  buildReport(lastData);
+  document.getElementById('rh-title').textContent=client+' 리포트';
+  document.getElementById('view-form').style.display='none';
+  document.getElementById('view-report').style.display='block';
+  window.scrollTo(0,0);
+  showToast('✅ 리포트가 생성되었습니다');
+}
+
+function buildReport(d){
+  const resMap={
+    good:{cls:'good',icon:'✅',text:'정상 — 이상 없음, 정상 운영 가능합니다.'},
+    warn:{cls:'warn',icon:'⚠️',text:'주의 필요 — 일부 항목 지속 모니터링을 권장합니다.'},
+    bad: {cls:'bad', icon:'🔴',text:'즉시 조치 필요 — 담당자 확인 후 운영 여부 결정 권장.'},
+  };
+  const res=resMap[d.result];
+  const now=new Date().toLocaleString('ko-KR',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+
+  const paper=document.getElementById('r-paper');
+  paper.innerHTML='';
+
+  /* hero */
+  paper.innerHTML='<div class="r-hero">'
+    +'<div class="r-eyebrow">MACHINE CARE REPORT</div>'
+    +'<div class="r-title">'+d.client+' — 머신 케어 리포트</div>'
+    +'<div class="r-meta">'
+    +'<div class="r-mi"><span class="mk">방문일</span><span class="mv">'+d.dateStr+'</span></div>'
+    +'<div class="r-mi"><span class="mk">엔지니어</span><span class="mv">'+d.engineer+'</span></div>'
+    +'<div class="r-mi"><span class="mk">머신 수</span><span class="mv">'+d.machines.length+'대</span></div>'
+    +'</div></div>';
+
+  const body=document.createElement('div');
+  body.className='r-body-inner';
+
+  /* result banner */
+  body.innerHTML='<div class="res-banner '+res.cls+'"><span class="bi">'+res.icon+'</span><span>'+res.text+'</span></div>';
+
+  /* machine tabs */
+  if(d.machines.length>1){
+    const bar=document.createElement('div');
+    bar.className='rmt-bar';
+    d.machines.forEach(function(m,i){
+      const b=document.createElement('button');
+      b.className='rmt'+(i===0?' active':'');
+      b.textContent=m.name;
+      b.addEventListener('click', (function(mid){ return function(){ switchRTab(mid); }; })(m.id));
+      bar.appendChild(b);
+    });
+    body.appendChild(bar);
+  }
+
+  /* machine sections */
+  d.machines.forEach(function(m,i){
+    const sec=document.createElement('div');
+    sec.className='mrs'+(i===0?' active':'');
+    sec.id='mrs_'+m.id;
+
+    /* photos */
+    const photoSec=document.createElement('div');
+    photoSec.className='r-sec';
+    photoSec.innerHTML='<div class="r-sec-t"><span class="dot" style="background:var(--amber)"></span>케어 전 · 후 사진</div>';
+
+    ['before','after'].forEach(function(side){
+      const arr=m.photos[side];
+      const grp=document.createElement('div');
+      grp.className='photo-group';
+      const gtitle=document.createElement('div');
+      gtitle.className='photo-group-title '+side;
+      gtitle.textContent=(side==='before'?'케어 전 (BEFORE)':'케어 후 (AFTER)')+(arr.length>0?' ('+arr.length+'장)':'');
+      grp.appendChild(gtitle);
+      const gallery=document.createElement('div');
+      gallery.className='photo-gallery '+side;
+      if(arr.length>0){
+        arr.forEach(function(src,idx){
+          const img=document.createElement('img');
+          img.className='gallery-img';
+          img.src=src;
+          img.addEventListener('click', (function(images,i){ return function(e){ e.stopPropagation(); openLightbox(images,i); }; })(arr.slice(),idx));
+          gallery.appendChild(img);
+        });
+      } else {
+        gallery.innerHTML='<div class="gallery-empty">사진 없음</div>';
+      }
+      grp.appendChild(gallery);
+      photoSec.appendChild(grp);
+    });
+    sec.appendChild(photoSec);
+
+    /* extraction */
+    const extSec=document.createElement('div');
+    extSec.className='r-sec';
+    extSec.innerHTML='<div class="r-sec-t"><span class="dot"></span>아메리카노 추출 상태</div>';
+    const extTable=document.createElement('table');
+    extTable.className='ext-table';
+    extTable.innerHTML='<thead><tr><th>항목</th><th>조정 전</th><th></th><th>조정 후</th></tr></thead>';
+    const tbody=document.createElement('tbody');
+    if(m.noChange){
+      tbody.innerHTML='<tr class="nc-row"><td colspan="4" style="text-align:center;padding:14px"><span class="ok-badge">✅ 조정 불필요 — 현재 파라미터 양호</span></td></tr>';
+    } else {
+      let hasRow=false;
+      PARAMS.forEach(function(p){
+        const b=m.params[p.key+'_b']||'', a=m.params[p.key+'_a']||'';
+        if(!b&&!a) return;
+        hasRow=true;
+        const changed=b.trim()&&a.trim()&&b.trim()!==a.trim();
+        const tr=document.createElement('tr');
+        tr.innerHTML='<td>'+p.label+'<span style="font-size:11px;color:#94a3b8;margin-left:4px">('+p.unit+')</span></td>'
+          +'<td class="'+(changed?'':'val-ok')+'">'+( b||'—')+'</td>'
+          +'<td class="arrow-c">→</td>'
+          +'<td class="'+(changed?'val-changed':'val-ok')+'">'+(a||'—')+(changed?diffTag(b,a):'')+'</td>';
+        tbody.appendChild(tr);
+      });
+      if(!hasRow) tbody.innerHTML='<tr><td colspan="4" style="text-align:center;padding:12px;color:#94a3b8;font-size:12px">입력된 항목 없음</td></tr>';
+    }
+    extTable.appendChild(tbody);
+    extSec.appendChild(extTable);
+    sec.appendChild(extSec);
+
+    /* checks */
+    const chkSec=document.createElement('div');
+    chkSec.className='r-sec';
+    chkSec.innerHTML='<div class="r-sec-t"><span class="dot"></span>커피 머신 관리</div>';
+    const chkTable=document.createElement('table');
+    chkTable.className='chk-table';
+    chkTable.innerHTML='<thead><tr><th>항목</th><th>처리 상태</th></tr></thead>';
+    const ctbody=document.createElement('tbody');
+    CHECKS.forEach(function(c){
+      const tr=document.createElement('tr');
+      tr.innerHTML='<td>'+c.label+'</td><td><span class="pill '+(m.checks[c.id]?'ok':'none')+'">'+(m.checks[c.id]?'✓ 완료':'— 미실시')+'</span></td>';
+      ctbody.appendChild(tr);
+    });
+    chkTable.appendChild(ctbody);
+    chkSec.appendChild(chkTable);
+    sec.appendChild(chkSec);
+
+    body.appendChild(sec);
+  });
+
+  /* issue / memo */
+  if(d.issue){
+    body.innerHTML+='<div class="r-sec"><div class="r-sec-t"><span class="dot" style="background:var(--red)"></span>이상 증상 및 조치</div><div class="issue-box">'+d.issue.replace(/\n/g,'<br>')+'</div></div>';
+  }
+  if(d.memo){
+    body.innerHTML+='<div class="r-sec"><div class="r-sec-t"><span class="dot"></span>추가 메모</div><div class="note-box">'+d.memo.replace(/\n/g,'<br>')+'</div></div>';
+  }
+
+  body.innerHTML+='<div class="sign-wrap"><div class="sign-box"><div class="sl">점검 담당 엔지니어</div><div class="sn">'+d.engineer+'</div></div></div>';
+
+  paper.appendChild(body);
+  paper.innerHTML+='<div class="r-footer"><span class="rfb">Machine Care Report</span><span class="rfg">Generated '+now+'</span></div>';
+}
+
+function switchRTab(id){
+  document.querySelectorAll('.rmt').forEach(function(b){b.classList.remove('active');});
+  document.querySelectorAll('.mrs').forEach(function(s){s.classList.remove('active');});
+  document.querySelectorAll('.rmt').forEach(function(b){
+    if(b.textContent===machines.find(function(m){return m.id===id;})?.name) b.classList.add('active');
+  });
+  const sec=document.getElementById('mrs_'+id);
+  if(sec) sec.classList.add('active');
+}
+
+/* ══ LIGHTBOX ══ */
+function openLightbox(images,idx){
+  lbImages=images; lbIdx=idx; showLb();
+  document.getElementById('lightbox').classList.add('open');
+}
+function showLb(){
+  document.getElementById('lb-img').src=lbImages[lbIdx];
+  document.getElementById('lb-count').textContent=(lbIdx+1)+' / '+lbImages.length;
+}
+function lbNav(dir){ lbIdx=(lbIdx+dir+lbImages.length)%lbImages.length; showLb(); }
+function closeLightbox(){ document.getElementById('lightbox').classList.remove('open'); }
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape') closeLightbox();
+  if(e.key==='ArrowLeft')  lbNav(-1);
+  if(e.key==='ArrowRight') lbNav(1);
+});
+
+/* ══ NAV ══ */
+function goBack(){
+  document.getElementById('view-report').style.display='none';
+  document.getElementById('view-form').style.display='block';
+  window.scrollTo(0,0);
+}
+
+/* ══ SHARE ══ */
+function shareReport(){
+  if(!lastData) return;
+  const slim={
+    client:lastData.client, dateStr:lastData.dateStr, engineer:lastData.engineer,
+    issue:lastData.issue, memo:lastData.memo, result:lastData.result,
+    machines:lastData.machines.map(function(m){
+      return {id:m.id,name:m.name,params:m.params,checks:m.checks,noChange:m.noChange,photos:{before:[],after:[]}};
+    })
+  };
+  try{
+    const encoded=btoa(unescape(encodeURIComponent(JSON.stringify(slim))));
+    const url=location.origin+location.pathname+'#r='+encoded;
+    if(navigator.share){
+      navigator.share({title:lastData.client+' 머신 케어 리포트',url:url}).catch(function(){fallbackCopy(url);});
+    } else { fallbackCopy(url); }
+  } catch(e){ showToast('⚠ 공유 링크 생성 실패'); }
+}
+function fallbackCopy(url){
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(url).then(function(){ showToast('🔗 공유 링크 복사됨 (사진 제외)'); });
+  } else { prompt('링크를 복사하세요:',url); }
+}
+
+/* ══ MAIL / COPY ══ */
+function buildText(d){
+  const rl={good:'✅ 정상',warn:'⚠️ 주의 필요',bad:'🔴 즉시 조치 필요'}[d.result];
+  const mTxt=d.machines.map(function(m){
+    let ext;
+    if(m.noChange){ ext='  ✅ 조정 불필요 — 현재 파라미터 양호'; }
+    else{
+      const lines=PARAMS.map(function(p){
+        const b=m.params[p.key+'_b']||'', a=m.params[p.key+'_a']||'';
+        if(!b&&!a) return null;
+        return '  '+p.label+': '+( b||'—')+' → '+(a||'—');
+      }).filter(Boolean);
+      ext=lines.length?lines.join('\n'):'  입력 없음';
+    }
+    const chk=CHECKS.map(function(c){ return '  ['+(m.checks[c.id]?'완료':'미실시')+'] '+c.label; }).join('\n');
+    return '▶ '+m.name+'\n[추출 상태]\n'+ext+'\n[머신 관리]\n'+chk;
+  }).join('\n\n');
+
+  return ('안녕하세요, '+d.client+' 담당자님.\n\n'
+    +'커피 머신 케어 서비스가 완료되었습니다.\n아래 리포트를 확인해 주시기 바랍니다.\n\n'
+    +'━━━━━━━━━━━━━━━━━━━━━━━━━━━\n  머신 케어 리포트\n━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'
+    +'고객사   : '+d.client+'\n방문일   : '+d.dateStr+'\n엔지니어 : '+d.engineer+'\n머신 수  : '+d.machines.length+'대\n결과     : '+rl+'\n\n'
+    +'────────────────────────────\n'+mTxt
+    +(d.issue?'\n\n────────────────────────────\n■ 이상 증상\n  '+d.issue:'')
+    +(d.memo? '\n\n────────────────────────────\n■ 추가 메모\n  '+d.memo:'')
+    +'\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━\n문의 사항이 있으시면 언제든지 연락주십시오.\n감사합니다.\n\n'+d.engineer+' 드림'
+  ).trim();
+}
+function copyText(){
+  if(!lastData) return;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(buildText(lastData)).then(function(){ showToast('📋 메일 본문이 복사되었습니다'); });
+  } else { showToast('⚠ 클립보드 접근 불가'); }
+}
+function savePDF(){
+  if(!lastData) return;
+
+  // 기존 인쇄용 사진 페이지 제거
+  var old = document.getElementById('print-photo-pages');
+  if(old) old.remove();
+
+  // 인쇄용 사진 페이지 동적 생성
+  var photoPages = document.createElement('div');
+  photoPages.id = 'print-photo-pages';
+  photoPages.className = 'print-photo-pages';
+
+  lastData.machines.forEach(function(m, mi){
+    var prefix = lastData.machines.length > 1 ? m.name + ' — ' : '';
+
+    ['before','after'].forEach(function(side){
+      var photos = m.photos[side];
+      if(!photos || photos.length === 0) return;
+
+      var sideLabel = side === 'before' ? 'BEFORE (케어 전)' : 'AFTER (케어 후)';
+      var color = side === 'before' ? '#d97706' : '#16a34a';
+
+      // 한 페이지에 4장씩 나눔
+      var perPage = 4;
+      for(var p = 0; p < photos.length; p += perPage){
+        var chunk = photos.slice(p, p + perPage);
+        var pageNum = Math.floor(p / perPage) + 1;
+        var totalPages = Math.ceil(photos.length / perPage);
+
+        var sec = document.createElement('div');
+        sec.className = 'photo-print-section';
+
+        var title = document.createElement('div');
+        title.className = 'photo-print-title';
+        title.style.color = color;
+        title.textContent = prefix + sideLabel
+          + (totalPages > 1 ? '  (' + pageNum + '/' + totalPages + ')' : '')
+          + '  — ' + photos.length + '장';
+        sec.appendChild(title);
+
+        var grid = document.createElement('div');
+        grid.className = 'photo-print-grid';
+
+        chunk.forEach(function(src){
+          var img = document.createElement('img');
+          img.src = src;
+          img.className = 'photo-print-item';
+          grid.appendChild(img);
+        });
+
+        sec.appendChild(grid);
+        photoPages.appendChild(sec);
+      }
+    });
+  });
+
+  document.getElementById('r-paper').appendChild(photoPages);
+
+  // 모든 머신 섹션 인쇄 시 보이게
+  document.querySelectorAll('.mrs').forEach(function(s){ s.style.display='block'; });
+  document.querySelectorAll('.rmt-bar').forEach(function(b){ b.style.display='none'; });
+
+  var origTitle = document.title;
+  document.title = '[빈브라더스] 커피머신 점검 & 케어 리포트_' + lastData.client;
+
+  window.print();
+
+  // 원상복구
+  setTimeout(function(){
+    document.title = origTitle;
+    document.querySelectorAll('.rmt-bar').forEach(function(b){ b.style.display=''; });
+    document.querySelectorAll('.mrs').forEach(function(s,i){ s.style.display = i===0 ? 'block' : 'none'; });
+    var pp = document.getElementById('print-photo-pages');
+    if(pp) pp.remove();
+  }, 1500);
+}
+
+function getKoreanDay(dateStr){
+  if(!dateStr) return '';
+  var d = new Date(dateStr);
+  var days = ['일','월','화','수','목','금','토'];
+  return days[d.getDay()];
+}
+
+function openMail(){
+  if(!lastData) return;
+
+  var d = lastData;
+  var dateRaw = document.getElementById('visit-date').value; // "2026-03-24"
+  var korDay  = getKoreanDay(dateRaw);
+
+  // 날짜 → "26년 03월 24일(화)" 형식
+  var dateFormatted = '';
+  if(dateRaw){
+    var parts = dateRaw.split('-');
+    var yy = parts[0].slice(2);
+    var mm = parts[1];
+    var dd = parts[2];
+    dateFormatted = yy+'년 '+mm+'월 '+dd+'일('+korDay+')';
+  }
+
+  // 제목: [빈브라더스] MM월 커피머신 점검 & 케어 리포트 _ (고객사명)
+  var mm2 = dateRaw ? dateRaw.split('-')[1]+'월' : '';
+  var subject = '[빈브라더스] '+mm2+' 커피머신 점검 & 케어 리포트 _ '+d.client;
+
+  // 리포트 공유 링크 (현재 URL)
+  var reportUrl = location.href.includes('#r=') ? location.href : location.origin + location.pathname;
+
+  // 본문
+  var body = '안녕하세요, 빈브라더스입니다.\n\n'
+    +dateFormatted+' 일정으로 진행된 커피머신 점검 & 케어 리포트 공유드립니다.\n\n'
+    +'리포트 링크: '+reportUrl+'\n\n'
+    +'확인해보시고 궁금한 점이 있으시면 편하게 회신바랍니다.\n'
+    +'감사합니다.';
+
+  var to = d.email || '';
+
+  // Gmail 앱/웹 바로 열기
+  var cc = 'b2b@ablecoffeegroup.com';
+  var gmailUrl = 'https://mail.google.com/mail/?view=cm&fs=1'
+    +'&to='+encodeURIComponent(to)
+    +'&cc='+encodeURIComponent(cc)
+    +'&su='+encodeURIComponent(subject)
+    +'&body='+encodeURIComponent(body);
+
+  window.open(gmailUrl, '_blank');
+}
+
+/* ══ TOAST ══ */
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); },3200);
+}
+
+/* ══ URL HASH LOAD ══ */
+window.addEventListener('load',function(){
+  const hash=location.hash;
+  if(!hash.startsWith('#r=')){addMachine();return;}
+  try{
+    const data=JSON.parse(decodeURIComponent(escape(atob(hash.slice(3)))));
+    lastData=data; machines=data.machines; mc=machines.length;
+    activeMid=machines[0]?machines[0].id:null;
+    document.getElementById('client').value=data.client||'';
+    document.getElementById('engineer').value=data.engineer||'';
+    document.getElementById('issue').value=data.issue||'';
+    document.getElementById('memo').value=data.memo||'';
+    document.querySelectorAll('.r-tab').forEach(function(t){
+      t.classList.remove('sel-good','sel-warn','sel-bad');
+      if(t.dataset.val===data.result){ t.classList.add('sel-'+data.result); t.querySelector('input').checked=true; }
+    });
+    buildReport(data);
+    document.getElementById('rh-title').textContent=data.client+' 리포트';
+    document.getElementById('view-form').style.display='none';
+    document.getElementById('view-report').style.display='block';
+  } catch(e){ addMachine(); }
+});
+</script>
+</body>
+</html>
